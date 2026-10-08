@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pocket Formulary</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="약전">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f5f7f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1513" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+/* Layout: one-column phone app — sticky search header, result list, full-screen monograph sheet with section rail */
+:root{
+  --bg:#f5f7f6; --surface:#ffffff; --ink:#15211e; --muted:#5d6b67; --line:#dde4e1;
+  --accent:#0d6b58; --accent-ink:#ffffff; --accent-soft:#e1efea;
+  --mark:#fde7a6; --dose:#8a4b00; --dose-bg:#fff3df; --warn:#a8322d;
+  --f-display:ui-serif, "New York", "Apple SD Gothic Neo", Georgia, serif;
+  --f-body:-apple-system, "Apple SD Gothic Neo", system-ui, sans-serif;
+  --f-mono:ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1513; --surface:#16201d; --ink:#e4ece9; --muted:#93a39e; --line:#26332f;
+  --accent:#4cc3a3; --accent-ink:#06231c; --accent-soft:#163a31;
+  --mark:#5b4a12; --dose:#ffc278; --dose-bg:#3a2a12; --warn:#ff8a80; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1513; --surface:#16201d; --ink:#e4ece9; --muted:#93a39e; --line:#26332f;
+  --accent:#4cc3a3; --accent-ink:#06231c; --accent-soft:#163a31;
+  --mark:#5b4a12; --dose:#ffc278; --dose-bg:#3a2a12; --warn:#ff8a80; color-scheme:dark}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px}
+
+/* header */
+.top{position:sticky;top:0;padding-top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-top:14px}
+.brand h1{font-family:var(--f-display);font-weight:700;font-size:22px;margin:0;letter-spacing:-.01em}
+.brand h1 span{color:var(--accent)}
+.brand small{color:var(--muted);font-size:12px}
+.searchrow{display:flex;gap:8px;padding-block:10px 8px}
+.sbox{flex:1;min-width:0;position:relative}
+.sbox input{width:100%;font:inherit;font-size:17px;padding:12px 40px 12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);-webkit-appearance:none;appearance:none}
+.sbox input:focus{border-color:var(--accent);outline:none}
+.sbox .clr{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;width:32px;height:32px;border-radius:50%;color:var(--muted);font-size:18px;cursor:pointer}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+/* lists */
+main{padding-block:8px 40px}
+.label{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:18px 0 6px}
+.list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.list li+li{border-top:1px solid var(--line)}
+.row{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:11px 14px;cursor:pointer}
+.row:active{background:var(--accent-soft)}
+.row .main{flex:1;min-width:0}
+.row .nm{font-family:var(--f-display);font-weight:600;font-size:17px;line-height:1.25}
+.row .sub{color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .snip{color:var(--ink);font-size:13px;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.row .snip em{font-style:normal;color:var(--accent);font-weight:600;font-size:11.5px;margin-right:6px}
+.tag{flex:none;font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.pg{flex:none;font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
+.empty{color:var(--muted);text-align:center;padding:24px 8px;font-size:14px}
+.more{display:block;margin:10px auto 0;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;cursor:pointer;font-size:13px}
+.alpha{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.alpha button{width:34px;height:34px;border:1px solid var(--line);background:var(--surface);border-radius:8px;cursor:pointer;font-family:var(--f-mono);font-size:13px}
+
+/* onboarding */
+.setup{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 18px;margin-top:16px}
+.setup h2{font-family:var(--f-display);font-size:22px;margin:0 0 6px;text-wrap:balance}
+.setup p{margin:0 0 12px;color:var(--muted)}
+.steps{margin:0 0 16px;padding-left:20px}
+.steps li{margin-bottom:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:13px 18px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:16px;cursor:pointer;width:100%}
+.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.status{margin-top:10px;font-size:13.5px;color:var(--muted);min-height:1.2em}
+.status.err{color:var(--warn)}
+.preview{margin-top:18px;border-top:1px dashed var(--line);padding-top:14px}
+.preview .label{margin-top:0}
+
+/* monograph sheet */
+.sheet{position:fixed;inset:0;z-index:10;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,0px)}
+.sheethead{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.bar{display:flex;align-items:center;gap:8px;padding-block:8px}
+.iconbtn{border:0;background:none;min-width:40px;height:40px;border-radius:10px;cursor:pointer;font-size:15px;color:var(--accent);font-weight:600;padding:0 8px}
+.iconbtn.star{font-size:22px;color:var(--muted)}
+.iconbtn.star[aria-pressed="true"]{color:#e0a100}
+.bar .ttl{flex:1;min-width:0;font-family:var(--f-display);font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .15s}
+.bar .ttl.on{opacity:1}
+.secnav{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.secnav::-webkit-scrollbar{display:none}
+.secnav button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:4px 10px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.mono-h{padding-block:16px 6px}
+.mono-h h2{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.1;margin:0;letter-spacing:-.015em;text-wrap:balance}
+.mono-h .alt{color:var(--muted);font-family:var(--f-display);font-size:17px;margin-top:2px}
+.mono-h .meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:13.5px;color:var(--muted)}
+.mono-h .cls{margin-top:8px;font-weight:600;color:var(--accent);font-size:14px}
+.mono-h .brands{font-style:italic}
+
+.calc{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--dose-bg);border-radius:12px;padding:10px 12px;margin:12px 0 4px}
+.calc label{font-size:13px;font-weight:600;color:var(--dose)}
+.calc input{width:96px;font:inherit;font-size:16px;font-family:var(--f-mono);padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.calc .hint{font-size:12px;color:var(--muted);flex-basis:100%}
+
+.sec{border-bottom:1px solid var(--line)}
+.sec>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;font-weight:700;font-size:15.5px}
+.sec>summary::-webkit-details-marker{display:none}
+.sec>summary::after{content:"＋";color:var(--muted);font-weight:400}
+.sec[open]>summary::after{content:"－"}
+.sec.key>summary{color:var(--accent)}
+.body{padding-bottom:16px;font-size:15px;max-width:68ch}
+.body p{margin:0 0 10px}
+.body p.ind{padding-left:10px;border-left:2px solid var(--line)}
+.body ul{margin:0 0 10px;padding-left:18px}
+.body li{margin-bottom:6px}
+.body ul.hl{list-style:none;padding:0}
+.body ul.hl li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
+.body h4{margin:16px 0 8px;font-size:12.5px;letter-spacing:.06em;color:var(--muted)}
+.body h4 b{color:var(--ink)}
+.body a.xref{color:var(--accent);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px;cursor:pointer}
+.spchips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.dz{white-space:nowrap;font-family:var(--f-mono);font-size:12.5px;color:var(--dose);background:var(--dose-bg);border-radius:5px;padding:0 4px;margin-left:3px}
+.body .tbl{overflow-x:auto;margin:4px 0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.body table{border-collapse:collapse;font-size:13px;min-width:100%}
+.body th,.body td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;min-width:84px}
+.body th{background:var(--accent-soft);font-weight:600;font-size:12px}
+.body tr:last-child td{border-bottom:0}
+input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
+.foot{color:var(--muted);font-size:12px;padding-block:20px}
+.flash{animation:fl 1.6s ease-out}
+@keyframes fl{from{background:var(--mark)}to{background:transparent}}
+@media (prefers-reduced-motion: reduce){.flash{animation:none}.bar .ttl{transition:none}}
+.settings{margin-top:26px;display:grid;gap:8px}
+.confirm{background:var(--surface);border:1px solid var(--warn);border-radius:12px;padding:12px;font-size:14px}
+.confirm .acts{display:flex;gap:8px;margin-top:10px}
+.confirm .acts button{flex:1;border-radius:10px;padding:9px;border:1px solid var(--line);background:var(--bg);cursor:pointer}
+.confirm .acts .danger{background:var(--warn);color:#fff;border-color:var(--warn)}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <div class="brand"><h1>Pocket <span>Formulary</span></h1><small id="countlbl"></small></div>
+    <div class="searchrow">
+      <div class="sbox">
+        <input id="q" type="search" inputmode="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="약물명, 상품명, 분류 검색 (예: maropitant, Cerenia)" aria-label="약물 검색">
+        <button class="clr" id="clr" aria-label="검색어 지우기" hidden>✕</button>
+      </div>
+    </div>
+    <div class="chips" id="modes" role="group" aria-label="검색 범위">
+      <button class="chip" data-mode="name" aria-pressed="true">이름·상품명</button>
+      <button class="chip" data-mode="full" aria-pressed="false">본문 전체</button>
+      <span style="width:6px;flex:none"></span>
+      <button class="chip" data-grp="" aria-pressed="true">전체</button>
+      <button class="chip" data-grp="Systemic" aria-pressed="false">전신</button>
+      <button class="chip" data-grp="Ophthalmic" aria-pressed="false">안과</button>
+      <button class="chip" data-grp="Topical" aria-pressed="false">피부</button>
+      <button class="chip" data-grp="Otic" aria-pressed="false">이과</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap" id="main"></main>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheethead">
+    <div class="wrap">
+      <div class="bar">
+        <button class="iconbtn" id="back" aria-label="뒤로">‹ 뒤로</button>
+        <div class="ttl" id="sttl"></div>
+        <button class="iconbtn star" id="star" aria-pressed="false" aria-label="즐겨찾기">★</button>
+      </div>
+      <nav class="secnav" id="secnav" aria-label="섹션 바로가기"></nav>
+    </div>
+  </div>
+  <div class="wrap" id="mono"></div>
+</div>
+
+<input type="file" id="file" accept=".json,application/json" hidden>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const main=$('#main'), q=$('#q'), sheet=$('#sheet'), mono=$('#mono');
+let DB=null;            // {title, drugs}
+let IDX=[];             // search index
+let FULL=null;          // lazily built plain text per section
+let byName=new Map();
+let mode='name', grp='';
+let showN=40;
+const KEY_SECS=['Prescriber Highlights','Dosages','Suggested Dosages/Uses'];
+
+/* ---------- small storage helpers (all guarded) ---------- */
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+          set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open('pocket-formulary',1);
+  r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
+async function idbGet(k){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('kv').objectStore('kv').get(k);t.onsuccess=()=>res(t.result);t.onerror=()=>rej(t.error)})}
+async function idbSet(k,v){const db=await idb();return new Promise((res,rej)=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
+async function idbDel(k){const db=await idb();return new Promise((res)=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').delete(k);tx.oncomplete=()=>res();tx.onerror=()=>res()})}
+
+/* ---------- text utils ---------- */
+const norm=s=>(s||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[®™]/g,'').replace(/[^a-z0-9가-힣]+/g,' ').trim();
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const strip=h=>h.replace(/<[^>]+>/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#x27;/g,"'").replace(/\s+/g,' ');
+function hi(text,terms){let h=esc(text);for(const t of terms){if(t.length<2)continue;h=h.replace(new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>')}return h}
+function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;const m=[];for(let i=0;i<=a.length;i++){m[i]=[i]}for(let j=1;j<=b.length;j++)m[0][j]=j;
+  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return m[a.length][b.length]}
+
+/* ---------- build index ---------- */
+function synonyms(d){
+  const s=d.s.find(x=>/^Chemistry/.test(x[0]));if(!s)return '';
+  const t=strip(s[1]);const m=t.match(/may also be known as ([^]*?)\.(\s|$)/i);return m?m[1]:'';
+}
+function build(data){
+  DB=data;FULL=null;byName=new Map();
+  IDX=data.drugs.map((d,i)=>{
+    const names=[d.n,...(d.a||[])];
+    const brands=(d.b||'')+' '+synonyms(d);
+    for(const n of names){byName.set(norm(n),i);byName.set(norm(n.replace(/,? ?\(?(Systemic|Oral|Injectable)\)?$/i,'')),i)}
+    return {i,n:norm(names.join(' | ')),first:norm(d.n),b:norm(brands),c:norm(d.c),words:norm(names.join(' ')+' '+brands).split(' ')};
+  });
+  $('#countlbl').textContent=data.drugs.length+'개 약물';
+}
+function ensureFull(){
+  if(FULL)return FULL;
+  FULL=DB.drugs.map(d=>d.s.map(([h,html])=>[h,strip(html)]));
+  return FULL;
+}
+
+/* ---------- search ---------- */
+function searchName(query){
+  const qn=norm(query);if(!qn)return [];
+  const toks=qn.split(' ');
+  const out=[];
+  for(const x of IDX){
+    const d=DB.drugs[x.i];
+    if(grp && !d.g.startsWith(grp))continue;
+    let sc=0;
+    if(x.first===qn)sc=1000;
+    else if(x.first.startsWith(qn))sc=800-x.first.length;
+    else if(x.n.split(' | ').some(n=>n.startsWith(qn)))sc=600;
+    else if(toks.every(t=>x.n.includes(t)))sc=500;
+    else if(toks.every(t=>x.b.includes(t)))sc=400;
+    else if(toks.every(t=>(x.n+' '+x.b+' '+x.c).includes(t)))sc=200;
+    if(sc)out.push([sc,x.i]);
+  }
+  if(!out.length && qn.length>=4){ // typo tolerance
+    for(const x of IDX){const d=DB.drugs[x.i];if(grp && !d.g.startsWith(grp))continue;
+      let best=9;for(const w of x.words){if(w.length<3)continue;const pre=w.slice(0,qn.length+1);best=Math.min(best,lev(qn,w),lev(qn,pre))}
+      const lim=qn.length>=7?2:1;if(best<=lim)out.push([100-best,x.i])}
+  }
+  out.sort((a,b)=>b[0]-a[0]||DB.drugs[a[1]].n.localeCompare(DB.drugs[b[1]].n));
+  return out.map(o=>o[1]);
+}
+function searchFull(query){
+  const qn=query.toLowerCase().trim();if(qn.length<2)return [];
+  const terms=qn.split(/\s+/).filter(Boolean);
+  const F=ensureFull();const out=[];
+  F.forEach((secs,i)=>{
+    const d=DB.drugs[i];if(grp && !d.g.startsWith(grp))return;
+    let hit=null,count=0;
+    for(let k=0;k<secs.length;k++){const low=secs[k][1].toLowerCase();
+      if(terms.every(t=>low.includes(t))){count++; if(!hit){const p=low.indexOf(terms[0]);hit={k,p}}}}
+    if(hit){
+      const t=secs[hit.k][1];const a=Math.max(0,hit.p-30);
+      const nameHit=terms.every(t=>d.n.toLowerCase().includes(t))?1:0;
+      out.push({i,sec:secs[hit.k][0]||'개요',snip:(a?'…':'')+t.slice(a,hit.p+140)+'…',score:nameHit*1000+count,terms});
+    }
+  });
+  out.sort((a,b)=>b.score-a.score);
+  return out;
+}
+
+/* ---------- list rendering ---------- */
+function rowHTML(i,extra){
+  const d=DB.drugs[i];
+  const sub=[d.c,d.b].filter(Boolean).join(' · ');
+  const g=d.g.startsWith('Systemic')?'':`<span class="tag">${esc({Ophthalmic:'안과',Topical:'피부',Otic:'이과'}[d.g.split(' ')[0]]||d.g)}</span>`;
+  return `<li><button class="row" data-id="${i}"${extra&&extra.sec?` data-sec="${esc(extra.sec)}" data-term="${esc(extra.terms[0])}"`:''}><div class="main"><div class="nm">${extra&&extra.nmhi?extra.nmhi:esc(d.n)}</div>${sub?`<div class="sub">${esc(sub)}</div>`:''}${extra&&extra.snip?`<div class="snip"><em>${esc(extra.sec)}</em>${hi(extra.snip,extra.terms)}</div>`:''}</div>${g}<span class="pg">p.${d.pg}</span></button></li>`;
+}
+function renderHome(){
+  const fav=ls.get('fav',[]).filter(i=>DB.drugs[i]);
+  const rec=ls.get('recent',[]).filter(i=>DB.drugs[i]).slice(0,12);
+  let h='';
+  if(fav.length)h+=`<div class="label">즐겨찾기</div><ul class="list">${fav.map(i=>rowHTML(i)).join('')}</ul>`;
+  if(rec.length)h+=`<div class="label">최근 본 약물</div><ul class="list">${rec.map(i=>rowHTML(i)).join('')}</ul>`;
+  if(!fav.length&&!rec.length)h+=`<div class="empty">약물 이름 앞 글자만 입력해도 바로 찾습니다.<br>오타가 있어도 비슷한 이름을 찾아줘요.</div>`;
+  const letters=[...new Set(DB.drugs.filter(d=>d.g==='Systemic').map(d=>d.n[0].toUpperCase()))].filter(c=>/[A-Z]/.test(c));
+  h+=`<div class="label">가나다 대신 ABC로 둘러보기</div><div class="alpha">${letters.map(c=>`<button data-letter="${c}">${c}</button>`).join('')}</div>`;
+  h+=`<div class="settings"><button class="btn ghost" id="reimport">데이터 파일 다시 불러오기</button><button class="btn ghost" id="wipe" style="border-color:var(--warn);color:var(--warn)">이 기기에서 데이터 삭제</button><div id="confirmbox"></div></div>`;
+  h+=`<p class="foot">${esc(DB.title)} · 이 기기의 브라우저에만 저장됨. 실제 처방 전에는 원문과 최신 라벨을 확인하세요.</p>`;
+  main.innerHTML=h;
+}
+function renderLetter(c){
+  const ids=DB.drugs.map((d,i)=>i).filter(i=>DB.drugs[i].n[0].toUpperCase()===c&&(!grp||DB.drugs[i].g.startsWith(grp)));
+  main.innerHTML=`<div class="label">${c} · ${ids.length}개</div><ul class="list">${ids.map(i=>rowHTML(i)).join('')}</ul>`;
+}
+function renderResults(){
+  const v=q.value.trim();
+  $('#clr').hidden=!v;
+  if(!DB)return;
+  if(!v){renderHome();return}
+  if(mode==='name'){
+    const r=searchName(v);
+    if(!r.length){main.innerHTML=`<div class="empty">“${esc(v)}”와 일치하는 약물명이 없습니다.<br><button class="more" id="tofull">본문 전체에서 찾기</button></div>`;return}
+    const terms=norm(v).split(' ');
+    main.innerHTML=`<div class="label">${r.length}개 결과</div><ul class="list">${r.slice(0,showN).map(i=>rowHTML(i,{nmhi:hi(DB.drugs[i].n,terms)})).join('')}</ul>${r.length>showN?'<button class="more" id="more">더 보기</button>':''}`;
+  }else{
+    if(v.length<2){main.innerHTML='<div class="empty">두 글자 이상 입력하세요.</div>';return}
+    const r=searchFull(v);
+    if(!r.length){main.innerHTML=`<div class="empty">본문에서 “${esc(v)}”를 찾지 못했습니다.</div>`;return}
+    main.innerHTML=`<div class="label">${r.length}개 약물에서 발견 · 여러 단어는 모두 포함된 섹션만</div><ul class="list">${r.slice(0,showN).map(x=>rowHTML(x.i,x)).join('')}</ul>${r.length>showN?'<button class="more" id="more">더 보기</button>':''}`;
+  }
+}
+
+/* ---------- monograph ---------- */
+const stack=[];
+const DOSE_RE=/(\d+(?:\.\d+)?)(\s*(?:–|-|to)\s*(\d+(?:\.\d+)?))?\s*(mg|mcg|µg|μg|g|mL|units?|U|IU|mEq|mmol|ng)\s*\/\s*kg(\s*\/\s*(?:hr|hour|h|min|minute|day))?/g;
+function fmt(n){if(n>=100)return Math.round(n).toString();if(n>=10)return (Math.round(n*10)/10).toString();if(n>=1)return (Math.round(n*100)/100).toString();return (+n.toPrecision(2)).toString()}
+function annotateDoses(root,kg){
+  root.querySelectorAll('.dz').forEach(e=>e.remove());
+  if(!(kg>0))return;
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const nodes=[];
+  while(walker.nextNode()){if(/\/\s*kg/.test(walker.currentNode.nodeValue))nodes.push(walker.currentNode)}
+  for(const n of nodes){
+    const txt=n.nodeValue;let last=0;const frag=document.createDocumentFragment();let m;DOSE_RE.lastIndex=0;let any=false;
+    while((m=DOSE_RE.exec(txt))){any=true;
+      frag.appendChild(document.createTextNode(txt.slice(last,m.index+m[0].length)));
+      const a=parseFloat(m[1])*kg,b=m[3]?parseFloat(m[3])*kg:null;
+      const unit=m[4]+(m[5]?m[5].replace(/\s/g,''):'');
+      const s=document.createElement('span');s.className='dz';s.textContent='= '+fmt(a)+(b!=null?'–'+fmt(b):'')+' '+unit;
+      frag.appendChild(s);last=m.index+m[0].length}
+    if(any){frag.appendChild(document.createTextNode(txt.slice(last)));n.parentNode.replaceChild(frag,n)}
+  }
+}
+function linkify(body,selfId){
+  body.querySelectorAll('b').forEach(b=>{
+    const t=b.textContent.replace(/[:\s]+$/,'');const id=byName.get(norm(t));
+    if(id!=null&&id!==selfId){const a=document.createElement('a');a.className='xref';a.dataset.id=id;a.textContent=b.textContent;b.replaceWith(a)}
+  });
+}
+function speciesGroups(body){
+  const hs=[...body.querySelectorAll(':scope > h4')];
+  const sp=hs.map(h=>h.textContent.replace(/[:\s]+$/,'').trim()).filter(t=>/^[A-Z][A-Z ,/&()\-]+$/.test(t)&&t.length<40);
+  if(sp.length<2)return;
+  // wrap blocks under each h4
+  const kids=[...body.children];let cur=null;
+  for(const k of kids){
+    if(k.tagName==='H4'){const t=k.textContent.replace(/[:\s]+$/,'').trim();cur=document.createElement('div');cur.dataset.sp=t;k.before(cur);cur.appendChild(k)}
+    else if(cur)cur.appendChild(k);
+  }
+  const bar=document.createElement('div');bar.className='spchips';
+  bar.innerHTML=`<button class="chip" aria-pressed="true" data-sp="">모든 동물</button>`+[...new Set(sp)].map(s=>`<button class="chip" aria-pressed="false" data-sp="${esc(s)}">${esc(s.charAt(0)+s.slice(1).toLowerCase())}</button>`).join('');
+  body.prepend(bar);
+  bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    bar.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    body.querySelectorAll('div[data-sp]').forEach(dv=>dv.hidden=b.dataset.sp&&dv.dataset.sp!==b.dataset.sp);
+    try{ls.set('lastSp',b.dataset.sp)}catch(e){}
+  });
+  const pref=ls.get('lastSp','');
+  if(pref&&sp.includes(pref))bar.querySelector(`button[data-sp="${CSS.escape(pref)}"]`)?.click();
+}
+const SHORT={'Prescriber Highlights':'핵심','Uses/Indications':'적응증','Pharmacology/Actions':'약리','Pharmacokinetics':'PK','Contraindications/Precautions/Warnings':'금기·주의','Adverse Effects':'부작용','Reproductive/Nursing Safety':'임신·수유','Overdose/Acute Toxicity':'과량','Drug Interactions':'상호작용','Laboratory Considerations':'검사영향','Dosages':'용량','Monitoring':'모니터링','Client Information':'보호자 안내','Chemistry/Synonyms':'동의어','Storage/Stability':'보관','Compatibility/Compounding Considerations':'배합·조제','Dosage Forms/Regulatory Status':'제형','Indications/Actions':'적응증','Precautions/Adverse Effects':'주의·부작용','Suggested Dosages/Uses':'용량','Veterinary-Labeled Products':'동물용 제품','Human-Labeled Products':'인체용 제품'};
+function openDrug(i,opts={}){
+  const d=DB.drugs[i];if(!d)return;
+  if(!opts.noPush){stack.push(i)}
+  const rec=ls.get('recent',[]).filter(x=>x!==i);rec.unshift(i);ls.set('recent',rec.slice(0,30));
+  const fav=ls.get('fav',[]);$('#star').setAttribute('aria-pressed',fav.includes(i));
+  $('#sttl').textContent=d.n;$('#sttl').classList.remove('on');
+  const kg=ls.get('kg','');
+  let h=`<header class="mono-h"><h2>${esc(d.n)}</h2>${(d.a||[]).length?`<div class="alt">${esc(d.a.join(', '))}</div>`:''}
+    <div class="meta">${d.p?`<span>${esc(d.p)}</span>`:''}${d.b?`<span class="brands">${esc(d.b)}</span>`:''}<span class="pg">원서 p.${d.pg}</span></div>
+    ${d.c?`<div class="cls">${esc(d.c)}</div>`:''}</header>
+    <div class="calc"><label for="kg">체중</label><input id="kg" type="number" inputmode="decimal" step="0.1" min="0" placeholder="kg" value="${esc(String(kg))}"><span style="font-size:13px;color:var(--dose)">kg</span><span class="hint">입력하면 본문의 mg/kg 용량 옆에 총량이 표시됩니다. 계산은 참고용이에요.</span></div>`;
+  d.s.forEach(([title,html],k)=>{
+    const key=KEY_SECS.includes(title)||(!title&&k===0)||opts.sec===title;
+    h+=`<details class="sec${KEY_SECS.includes(title)?' key':''}" id="s${k}" data-h="${esc(title)}"${key?' open':''}><summary>${esc(title||'개요')}</summary><div class="body">${html}</div></details>`;
+  });
+  h+=`<p class="foot">${esc(DB.title)} · p.${d.pg}. 참고문헌은 원서를 확인하세요.</p>`;
+  mono.innerHTML=h;
+  $('#secnav').innerHTML=d.s.map(([t],k)=>`<button data-k="${k}">${esc(SHORT[t]||t||'개요')}</button>`).join('');
+  mono.querySelectorAll('.sec').forEach(sec=>{
+    const body=sec.querySelector('.body');const t=sec.dataset.h;
+    if(/Interactions|Contraindications|Overdose|Adverse/.test(t))linkify(body,i);
+    if(/Dosage|Doses/.test(t)&&!/Forms|Regulatory/.test(t))speciesGroups(body);
+  });
+  annotateDoses(mono,parseFloat(kg));
+  sheet.hidden=false;document.body.style.overflow='hidden';
+  sheet.scrollTop=0;
+  if(opts.sec){const sec=[...mono.querySelectorAll('.sec')].find(s=>s.dataset.h===opts.sec);
+    if(sec){sec.open=true;
+      if(opts.term){const w=document.createTreeWalker(sec.querySelector('.body'),NodeFilter.SHOW_TEXT);let n;const t=opts.term.toLowerCase();
+        while((n=w.nextNode())){const p=n.nodeValue.toLowerCase().indexOf(t);if(p>=0){const r=document.createRange();r.setStart(n,p);r.setEnd(n,p+t.length);const mk=document.createElement('mark');r.surroundContents(mk);
+          setTimeout(()=>mk.scrollIntoView({block:'center'}),30);break}}}
+      else setTimeout(()=>scrollToSec(sec),30)}}
+}
+function scrollToSec(sec){const off=$('.sheethead').offsetHeight+4;sheet.scrollTo({top:sec.offsetTop-off,behavior:'auto'});const sm=sec.querySelector('summary');sm.classList.remove('flash');void sm.offsetWidth;sm.classList.add('flash')}
+function closeSheet(){sheet.hidden=true;document.body.style.overflow='';renderResults()}
+
+/* ---------- events ---------- */
+let tmr;q.addEventListener('input',()=>{showN=40;clearTimeout(tmr);tmr=setTimeout(renderResults,mode==='full'?220:40)});
+$('#clr').addEventListener('click',()=>{q.value='';renderResults();q.focus()});
+$('#modes').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;
+  if(b.dataset.mode){mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    q.placeholder=mode==='full'?'본문 검색 (예: MDR1, pyometra, CKD cat)':'약물명, 상품명, 분류 검색 (예: maropitant, Cerenia)';}
+  else{grp=b.dataset.grp;document.querySelectorAll('[data-grp]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
+  showN=40;renderResults()});
+main.addEventListener('click',e=>{
+  const r=e.target.closest('.row');if(r){openDrug(+r.dataset.id,{sec:r.dataset.sec,term:r.dataset.term});return}
+  const l=e.target.closest('[data-letter]');if(l){renderLetter(l.dataset.letter);return}
+  if(e.target.id==='more'){showN+=60;renderResults();return}
+  if(e.target.id==='tofull'){document.querySelector('[data-mode="full"]').click();return}
+  if(e.target.id==='reimport'||e.target.id==='pick'){$('#file').click();return}
+  if(e.target.id==='wipe'){$('#confirmbox').innerHTML=`<div class="confirm">이 기기에 저장된 약전 데이터를 지웁니다. 다시 쓰려면 파일을 다시 불러와야 해요.<div class="acts"><button id="nope">취소</button><button class="danger" id="yes">삭제</button></div></div>`;return}
+  if(e.target.id==='nope'){$('#confirmbox').innerHTML='';return}
+  if(e.target.id==='yes'){idbDel('data').then(()=>{DB=null;renderSetup()});return}
+});
+$('#back').addEventListener('click',()=>{stack.pop();if(stack.length){openDrug(stack[stack.length-1],{noPush:true})}else closeSheet()});
+$('#star').addEventListener('click',()=>{const i=stack[stack.length-1];let fav=ls.get('fav',[]);
+  if(fav.includes(i))fav=fav.filter(x=>x!==i);else fav.unshift(i);ls.set('fav',fav);$('#star').setAttribute('aria-pressed',fav.includes(i))});
+$('#secnav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const sec=$('#s'+b.dataset.k);sec.open=true;scrollToSec(sec)});
+mono.addEventListener('click',e=>{const a=e.target.closest('a.xref');if(a){e.preventDefault();openDrug(+a.dataset.id)}});
+mono.addEventListener('input',e=>{if(e.target.id==='kg'){const v=parseFloat(e.target.value);ls.set('kg',e.target.value);annotateDoses(mono,v)}});
+sheet.addEventListener('scroll',()=>{$('#sttl').classList.toggle('on',sheet.scrollTop>70)},{passive:true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.hidden)$('#back').click()});
+
+/* ---------- setup / import ---------- */
+function renderSetup(msg,err){
+  $('#countlbl').textContent='';
+  main.innerHTML=`<section class="setup">
+    <h2>약전 데이터 파일을 한 번만 불러오면 준비 끝</h2>
+    <p>이 앱에는 책 내용이 들어 있지 않습니다. 대화에서 받은 <b>plumbs-formulary-data.json</b> 파일을 불러오면 이 기기 브라우저 안에만 저장되고, 이후엔 바로 검색됩니다.</p>
+    <ol class="steps"><li>아이폰에서 대화의 JSON 파일을 눌러 <b>‘파일’ 앱에 저장</b> (이미 저장했다면 그대로 사용)</li><li>아래 버튼 → 저장한 파일 선택</li><li>약 10MB, 몇 초면 끝나요</li></ol>
+    <button class="btn" id="pick">데이터 파일 불러오기</button>
+    <div class="status${err?' err':''}" id="status">${esc(msg||'')}</div>
+    <div class="preview"><div class="label">불러오면 이렇게 쓸 수 있어요</div>
+      <ul class="steps" style="margin:0"><li><b>maro</b> → Maropitant, <b>cerenia</b> → 상품명으로도 검색</li><li><b>본문 전체</b> 모드: “MDR1”, “pyometra”처럼 적응증·키워드로 검색</li><li>용량 섹션에서 개·고양이 등 동물별로 바로 필터, 체중 넣으면 총 mg 자동 표시</li><li>상호작용에 나온 약 이름을 누르면 해당 약으로 이동, 즐겨찾기·최근 기록</li></ul></div>
+  </section>`;
+}
+$('#file').addEventListener('change',async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  const st=()=>$('#status');
+  if(!st())renderSetup();
+  st().className='status';st().textContent='읽는 중…';
+  try{
+    const txt=await f.text();
+    const data=JSON.parse(txt);
+    if(!data||data.format!=='vet-formulary/1'||!Array.isArray(data.drugs))throw new Error('format');
+    build(data);
+    try{await idbSet('data',data);try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}}catch(err){st().textContent='저장 공간에 저장하지 못해 이번 세션에서만 사용됩니다.'}
+    q.value='';renderResults();
+  }catch(err){
+    renderSetup(err.message==='format'?'이 파일은 약전 데이터 형식이 아닙니다. plumbs-formulary-data.json 파일을 선택하세요.':'파일을 읽지 못했습니다. 파일이 끝까지 다운로드됐는지 확인하고 다시 시도하세요.',true);
+  }
+});
+
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
+(async function init(){
+  try{const data=await idbGet('data');if(data&&data.drugs){build(data);renderResults();return}}catch(e){}
+  renderSetup();
+})();
+})();
+</script>
+
+</body>
+</html>
