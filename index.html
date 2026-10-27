@@ -3,165 +3,170 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Pocket Formulary</title>
+<title>수의 약전</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="약전">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#f5f7f6" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0e1513" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1d3a8a">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
 <style>
-/* Layout: one-column phone app — sticky search header, result list, full-screen monograph sheet with section rail */
+/* Layout: index-tab formulary — navy header with search, A–Z list with side rail, monograph with colored folder tabs */
 :root{
-  --bg:#f5f7f6; --surface:#ffffff; --ink:#15211e; --muted:#5d6b67; --line:#dde4e1;
-  --accent:#0d6b58; --accent-ink:#ffffff; --accent-soft:#e1efea;
-  --mark:#fde7a6; --dose:#8a4b00; --dose-bg:#fff3df; --warn:#a8322d;
-  --f-display:ui-serif, "New York", "Apple SD Gothic Neo", Georgia, serif;
+  --navy:#1d3a8a; --navy-2:#2c4c9e; --navy-ink:#ffffff; --navy-sub:#c6d2f2; --navy-line:#4d66ad;
+  --bg:#eef1f6; --surface:#ffffff; --ink:#121a2e; --muted:#4a5672; --line:#d7dde8;
+  --accent:#ffa64d; --accent-ink:#9a4d00; --dose:#7a3d00; --dose-bg:#ffe6cc; --mark:#ffe08a; --warn:#b3261e;
+  --t1:#ffa64d; --t2:#7ed6b2; --t3:#b9c7f0; --t4:#f2c6d8; --t5:#ffd166; --t6:#cfd6e4; --tab-ink:#121a2e;
   --f-body:-apple-system, "Apple SD Gothic Neo", system-ui, sans-serif;
   --f-mono:ui-monospace, Menlo, monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0e1513; --surface:#16201d; --ink:#e4ece9; --muted:#93a39e; --line:#26332f;
-  --accent:#4cc3a3; --accent-ink:#06231c; --accent-soft:#163a31;
-  --mark:#5b4a12; --dose:#ffc278; --dose-bg:#3a2a12; --warn:#ff8a80; color-scheme:dark}}
+  --navy:#16244f; --navy-2:#22356e; --navy-sub:#aab8e0; --navy-line:#3a4f8c;
+  --bg:#0e1320; --surface:#171e2f; --ink:#e7ecf6; --muted:#9aa6c0; --line:#283149;
+  --accent:#ffb366; --accent-ink:#ffc285; --dose:#ffd2a3; --dose-bg:#4a2e12; --mark:#6b5410; --warn:#ff8a80;
+  --t1:#e0954a; --t2:#5fb795; --t3:#8d9fd6; --t4:#c996ab; --t5:#d9b14f; --t6:#4a5571; --tab-ink:#0e1320; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0e1513; --surface:#16201d; --ink:#e4ece9; --muted:#93a39e; --line:#26332f;
-  --accent:#4cc3a3; --accent-ink:#06231c; --accent-soft:#163a31;
-  --mark:#5b4a12; --dose:#ffc278; --dose-bg:#3a2a12; --warn:#ff8a80; color-scheme:dark}
+  --navy:#16244f; --navy-2:#22356e; --navy-sub:#aab8e0; --navy-line:#3a4f8c;
+  --bg:#0e1320; --surface:#171e2f; --ink:#e7ecf6; --muted:#9aa6c0; --line:#283149;
+  --accent:#ffb366; --accent-ink:#ffc285; --dose:#ffd2a3; --dose-bg:#4a2e12; --mark:#6b5410; --warn:#ff8a80;
+  --t1:#e0954a; --t2:#5fb795; --t3:#8d9fd6; --t4:#c996ab; --t5:#d9b14f; --t6:#4a5571; --tab-ink:#0e1320; color-scheme:dark}
+*{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%}
-*{box-sizing:border-box}
 button{font:inherit;color:inherit}
 button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
 .wrap{max-width:760px;margin:0 auto;padding-inline:16px}
 
 /* header */
-.top{position:sticky;top:0;padding-top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-top:14px}
-.brand h1{font-family:var(--f-display);font-weight:700;font-size:22px;margin:0;letter-spacing:-.01em}
-.brand h1 span{color:var(--accent)}
-.brand small{color:var(--muted);font-size:12px}
-.searchrow{display:flex;gap:8px;padding-block:10px 8px}
-.sbox{flex:1;min-width:0;position:relative}
-.sbox input{width:100%;font:inherit;font-size:17px;padding:12px 40px 12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);-webkit-appearance:none;appearance:none}
-.sbox input:focus{border-color:var(--accent);outline:none}
-.sbox .clr{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;width:32px;height:32px;border-radius:50%;color:var(--muted);font-size:18px;cursor:pointer}
-.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
-.chips::-webkit-scrollbar{display:none}
-.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;white-space:nowrap}
-.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.top{position:sticky;top:0;z-index:5;background:var(--navy);color:var(--navy-ink);padding-top:env(safe-area-inset-top,0px)}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-top:12px}
+.brand h1{margin:0;font-size:23px;font-weight:800;letter-spacing:-.02em}
+.brand small{font-family:var(--f-mono);font-size:11.5px;color:var(--navy-sub);letter-spacing:.04em}
+.sbox{position:relative;margin-top:10px}
+.sbox svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none}
+.sbox input{width:100%;height:50px;font:inherit;font-size:17px;padding:0 44px 0 42px;border:0;border-radius:12px;background:#fff;color:#121a2e;-webkit-appearance:none;appearance:none}
+.sbox .clr{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;width:40px;height:40px;border-radius:50%;color:#4a5672;font-size:18px;cursor:pointer}
+.ctrls{display:flex;align-items:center;gap:6px;overflow-x:auto;padding-block:10px 12px;scrollbar-width:none}
+.ctrls::-webkit-scrollbar{display:none}
+.seg{display:flex;flex:none;padding:3px;border-radius:10px;background:var(--navy-2)}
+.seg button{border:0;background:transparent;color:var(--navy-sub);height:30px;padding:0 10px;border-radius:8px;font-size:13px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:#fff;color:#121a2e;font-weight:700}
+.chip{flex:none;height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--navy-line);background:transparent;color:#fff;font-size:13px;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#121a2e;font-weight:700}
 
-/* lists */
-main{padding-block:8px 40px}
-.label{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:18px 0 6px}
-.list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.list li+li{border-top:1px solid var(--line)}
-.row{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:11px 14px;cursor:pointer}
-.row:active{background:var(--accent-soft)}
+/* list */
+main{padding-block:4px 60px}
+.withrail{padding-right:30px}
+.label{font-size:12px;letter-spacing:.06em;color:var(--muted);font-weight:700;margin:18px 0 4px}
+.letter{font-family:var(--f-mono);font-size:13px;font-weight:600;color:var(--accent-ink);padding:14px 0 6px;border-bottom:2px solid var(--accent);scroll-margin-top:calc(env(safe-area-inset-top,0px) + 170px)}
+.list{list-style:none;margin:0;padding:0}
+.row{display:flex;gap:10px;align-items:center;width:100%;min-height:56px;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:8px 2px;cursor:pointer;color:var(--ink)}
+.row:active{background:var(--surface)}
 .row .main{flex:1;min-width:0}
-.row .nm{font-family:var(--f-display);font-weight:600;font-size:17px;line-height:1.25}
+.row .nm{font-weight:700;font-size:16.5px;line-height:1.3}
 .row .sub{color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .snip{color:var(--ink);font-size:13px;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.row .snip em{font-style:normal;color:var(--accent);font-weight:600;font-size:11.5px;margin-right:6px}
+.row .snip{font-size:13px;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.row .snip em{font-style:normal;font-weight:700;font-size:11.5px;color:var(--tab-ink);background:var(--t3);border-radius:5px;padding:1px 6px;margin-right:6px}
 .tag{flex:none;font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
 .pg{flex:none;font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
 mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
-.empty{color:var(--muted);text-align:center;padding:24px 8px;font-size:14px}
-.more{display:block;margin:10px auto 0;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;cursor:pointer;font-size:13px}
-.alpha{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
-.alpha button{width:34px;height:34px;border:1px solid var(--line);background:var(--surface);border-radius:8px;cursor:pointer;font-family:var(--f-mono);font-size:13px}
+.empty{color:var(--muted);text-align:center;padding:28px 8px;font-size:14px}
+.more{display:block;margin:14px auto 0;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 16px;cursor:pointer;font-size:13px}
+.favs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.favs button{min-height:48px;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:15px;cursor:pointer;color:var(--ink)}
+.rail{position:fixed;right:max(4px, env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 190px);bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:4;display:flex;flex-direction:column;justify-content:space-between;align-items:center;width:24px;font-family:var(--f-mono);font-size:11px}
+.rail button{border:0;background:none;color:var(--accent-ink);padding:0;width:24px;flex:1;max-height:26px;cursor:pointer;font:inherit;font-weight:600}
+.rail button.on{background:var(--accent);color:#121a2e;border-radius:6px}
 
-/* onboarding */
+/* setup */
 .setup{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 18px;margin-top:16px}
-.setup h2{font-family:var(--f-display);font-size:22px;margin:0 0 6px;text-wrap:balance}
+.setup h2{font-size:21px;margin:0 0 6px;font-weight:800;text-wrap:balance}
 .setup p{margin:0 0 12px;color:var(--muted)}
 .steps{margin:0 0 16px;padding-left:20px}
 .steps li{margin-bottom:6px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:13px 18px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:16px;cursor:pointer;width:100%}
-.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.btn{display:flex;align-items:center;justify-content:center;border:0;border-radius:12px;min-height:50px;padding:0 18px;background:var(--navy);color:#fff;font-weight:700;font-size:16px;cursor:pointer;width:100%}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.danger{color:var(--warn);border-color:var(--warn)}
 .status{margin-top:10px;font-size:13.5px;color:var(--muted);min-height:1.2em}
 .status.err{color:var(--warn)}
-.preview{margin-top:18px;border-top:1px dashed var(--line);padding-top:14px}
-.preview .label{margin-top:0}
+.settings{margin-top:30px;display:grid;gap:8px}
+.confirm{background:var(--surface);border:1px solid var(--warn);border-radius:12px;padding:12px;font-size:14px}
+.confirm .acts{display:flex;gap:8px;margin-top:10px}
+.confirm .acts button{flex:1;min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);cursor:pointer}
+.confirm .acts .danger{background:var(--warn);color:#fff;border-color:var(--warn)}
+.foot{color:var(--muted);font-size:12px;padding-block:20px}
 
-/* monograph sheet */
+/* monograph */
 .sheet{position:fixed;inset:0;z-index:10;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,0px)}
-.sheethead{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
-.bar{display:flex;align-items:center;gap:8px;padding-block:8px}
-.iconbtn{border:0;background:none;min-width:40px;height:40px;border-radius:10px;cursor:pointer;font-size:15px;color:var(--accent);font-weight:600;padding:0 8px}
-.iconbtn.star{font-size:22px;color:var(--muted)}
-.iconbtn.star[aria-pressed="true"]{color:#e0a100}
-.bar .ttl{flex:1;min-width:0;font-family:var(--f-display);font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .15s}
-.bar .ttl.on{opacity:1}
-.secnav{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
-.secnav::-webkit-scrollbar{display:none}
-.secnav button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:4px 10px;font-size:12.5px;cursor:pointer;white-space:nowrap}
-.mono-h{padding-block:16px 6px}
-.mono-h h2{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.1;margin:0;letter-spacing:-.015em;text-wrap:balance}
-.mono-h .alt{color:var(--muted);font-family:var(--f-display);font-size:17px;margin-top:2px}
-.mono-h .meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:13.5px;color:var(--muted)}
-.mono-h .cls{margin-top:8px;font-weight:600;color:var(--accent);font-size:14px}
-.mono-h .brands{font-style:italic}
-
-.calc{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--dose-bg);border-radius:12px;padding:10px 12px;margin:12px 0 4px}
-.calc label{font-size:13px;font-weight:600;color:var(--dose)}
-.calc input{width:96px;font:inherit;font-size:16px;font-family:var(--f-mono);padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.mhead{background:var(--navy);color:#fff;padding-top:env(safe-area-inset-top,0px)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px}
+.back{display:flex;align-items:center;gap:2px;border:0;background:none;color:#fff;min-height:44px;padding:0 6px 0 0;font-size:15px;font-weight:700;cursor:pointer}
+.bar .right{display:flex;align-items:center;gap:6px}
+.pgb{font-family:var(--f-mono);font-size:12px;padding:4px 8px;border-radius:6px;background:var(--navy-2);color:#e3e9fb}
+.star{border:0;background:none;width:44px;height:44px;border-radius:10px;cursor:pointer;color:var(--navy-sub)}
+.star[aria-pressed="true"]{color:#ffd166}
+.mono-h{padding-block:4px 16px}
+.mono-h h2{margin:0;font-size:29px;line-height:1.15;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+.mono-h .alt{color:var(--navy-sub);font-size:15px;margin-top:2px}
+.mono-h .meta{color:var(--navy-sub);font-size:13.5px;margin-top:6px}
+.mono-h .cls{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;background:var(--navy-2);border-radius:8px;padding:4px 10px}
+.tabs{position:sticky;top:0;z-index:3;background:var(--navy);padding-top:env(safe-area-inset-top,0px)}
+.tabrow{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-top:8px}
+.tabrow::-webkit-scrollbar{display:none}
+.tabrow button{flex:none;border:0;min-height:40px;padding:0 13px;border-radius:10px 10px 0 0;color:var(--tab-ink);font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.tabrow button.cur{background:var(--bg)!important;color:var(--ink)}
+.calc{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:16px}
+.calc label{font-size:14px;font-weight:700}
+.calc input{width:84px;height:40px;font-size:18px;font-family:var(--f-mono);text-align:center;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
 .calc .hint{font-size:12px;color:var(--muted);flex-basis:100%}
-
-.sec{border-bottom:1px solid var(--line)}
-.sec>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;font-weight:700;font-size:15.5px}
-.sec>summary::-webkit-details-marker{display:none}
-.sec>summary::after{content:"＋";color:var(--muted);font-weight:400}
-.sec[open]>summary::after{content:"－"}
-.sec.key>summary{color:var(--accent)}
-.body{padding-bottom:16px;font-size:15px;max-width:68ch}
+.sec{margin-top:22px;scroll-margin-top:calc(env(safe-area-inset-top,0px) + 56px)}
+.sechd{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;border:0;background:none;padding:0;cursor:pointer;color:var(--ink);text-align:left}
+.sechd .ttl{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sechd .ko{font-size:13px;font-weight:800;color:var(--tab-ink);border-radius:7px;padding:4px 10px}
+.sechd .en{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.sechd .tg{color:var(--muted);font-size:18px;line-height:1}
+.body{margin-top:10px;background:var(--surface);border-radius:12px;padding:14px 16px 4px;font-size:15px;max-width:72ch}
+.sec.closed .body{display:none}
 .body p{margin:0 0 10px}
-.body p.ind{padding-left:10px;border-left:2px solid var(--line)}
+.body p.ind{padding:10px 12px;background:var(--bg);border-radius:10px}
 .body ul{margin:0 0 10px;padding-left:18px}
 .body li{margin-bottom:6px}
 .body ul.hl{list-style:none;padding:0}
-.body ul.hl li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
-.body h4{margin:16px 0 8px;font-size:12.5px;letter-spacing:.06em;color:var(--muted)}
-.body h4 b{color:var(--ink)}
-.body a.xref{color:var(--accent);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px;cursor:pointer}
-.spchips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
-.dz{white-space:nowrap;font-family:var(--f-mono);font-size:12.5px;color:var(--dose);background:var(--dose-bg);border-radius:5px;padding:0 4px;margin-left:3px}
-.body .tbl{overflow-x:auto;margin:4px 0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.body ul.hl li{position:relative;padding-left:16px}
+.body ul.hl li::before{content:"";position:absolute;left:2px;top:.62em;width:7px;height:7px;border-radius:2px;background:var(--t1)}
+.body h4{margin:16px 0 8px;font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;color:var(--accent-ink);font-weight:600}
+.body h4 b{font-weight:600}
+.body a.xref{color:inherit;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px;cursor:pointer}
+.body .tbl{overflow-x:auto;margin:4px 0 12px;border:1px solid var(--line);border-radius:10px}
 .body table{border-collapse:collapse;font-size:13px;min-width:100%}
-.body th,.body td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;min-width:84px}
-.body th{background:var(--accent-soft);font-weight:600;font-size:12px}
+.body th,.body td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;min-width:110px}
+.body th{background:var(--bg);font-weight:700;font-size:12px}
 .body tr:last-child td{border-bottom:0}
-input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
-.foot{color:var(--muted);font-size:12px;padding-block:20px}
-.flash{animation:fl 1.6s ease-out}
-@keyframes fl{from{background:var(--mark)}to{background:transparent}}
-@media (prefers-reduced-motion: reduce){.flash{animation:none}.bar .ttl{transition:none}}
-.settings{margin-top:26px;display:grid;gap:8px}
-.confirm{background:var(--surface);border:1px solid var(--warn);border-radius:12px;padding:12px;font-size:14px}
-.confirm .acts{display:flex;gap:8px;margin-top:10px}
-.confirm .acts button{flex:1;border-radius:10px;padding:9px;border:1px solid var(--line);background:var(--bg);cursor:pointer}
-.confirm .acts .danger{background:var(--warn);color:#fff;border-color:var(--warn)}
+.spchips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.spchips button{min-height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:13px;cursor:pointer;color:var(--ink)}
+.spchips button[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+.dz{white-space:nowrap;font-family:var(--f-mono);font-size:12.5px;color:var(--dose);background:var(--dose-bg);border-radius:5px;padding:1px 5px;margin-left:3px}
 </style>
 </head>
 <body>
 
 <div class="top">
   <div class="wrap">
-    <div class="brand"><h1>Pocket <span>Formulary</span></h1><small id="countlbl"></small></div>
-    <div class="searchrow">
-      <div class="sbox">
-        <input id="q" type="search" inputmode="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="약물명, 상품명, 분류 검색 (예: maropitant, Cerenia)" aria-label="약물 검색">
-        <button class="clr" id="clr" aria-label="검색어 지우기" hidden>✕</button>
-      </div>
+    <div class="brand"><h1>수의 약전</h1><small id="countlbl"></small></div>
+    <div class="sbox">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4a5672" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+      <input id="q" type="search" inputmode="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="약물명·상품명 (예: maropitant, Cerenia)" aria-label="약물 검색">
+      <button class="clr" id="clr" aria-label="검색어 지우기" hidden>✕</button>
     </div>
-    <div class="chips" id="modes" role="group" aria-label="검색 범위">
-      <button class="chip" data-mode="name" aria-pressed="true">이름·상품명</button>
-      <button class="chip" data-mode="full" aria-pressed="false">본문 전체</button>
-      <span style="width:6px;flex:none"></span>
+    <div class="ctrls" id="ctrls">
+      <div class="seg" role="group" aria-label="검색 방식">
+        <button data-mode="name" aria-pressed="true">이름</button>
+        <button data-mode="full" aria-pressed="false">본문</button>
+      </div>
       <button class="chip" data-grp="" aria-pressed="true">전체</button>
       <button class="chip" data-grp="Systemic" aria-pressed="false">전신</button>
       <button class="chip" data-grp="Ophthalmic" aria-pressed="false">안과</button>
@@ -172,18 +177,20 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;appeara
 </div>
 
 <main class="wrap" id="main"></main>
+<nav class="rail" id="rail" aria-label="알파벳 색인" hidden></nav>
 
 <div class="sheet" id="sheet" hidden>
-  <div class="sheethead">
+  <div class="mhead">
     <div class="wrap">
       <div class="bar">
-        <button class="iconbtn" id="back" aria-label="뒤로">‹ 뒤로</button>
-        <div class="ttl" id="sttl"></div>
-        <button class="iconbtn star" id="star" aria-pressed="false" aria-label="즐겨찾기">★</button>
+        <button class="back" id="back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg><span id="backlbl">색인</span></button>
+        <div class="right"><span class="pgb" id="pgb"></span>
+          <button class="star" id="star" aria-pressed="false" aria-label="즐겨찾기"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"></path></svg></button></div>
       </div>
-      <nav class="secnav" id="secnav" aria-label="섹션 바로가기"></nav>
+      <div class="mono-h" id="monoh"></div>
     </div>
   </div>
+  <div class="tabs"><div class="wrap"><div class="tabrow" id="tabrow" role="tablist" aria-label="섹션"></div></div></div>
   <div class="wrap" id="mono"></div>
 </div>
 
@@ -193,287 +200,219 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;appeara
 (function(){
 "use strict";
 const $=s=>document.querySelector(s);
-const main=$('#main'), q=$('#q'), sheet=$('#sheet'), mono=$('#mono');
-let DB=null;            // {title, drugs}
-let IDX=[];             // search index
-let FULL=null;          // lazily built plain text per section
-let byName=new Map();
-let mode='name', grp='';
-let showN=40;
-const KEY_SECS=['Prescriber Highlights','Dosages','Suggested Dosages/Uses'];
+const main=$('#main'), q=$('#q'), sheet=$('#sheet'), mono=$('#mono'), rail=$('#rail');
+let DB=null, IDX=[], FULL=null, byName=new Map();
+let mode='name', grp='', showN=40;
 
-/* ---------- small storage helpers (all guarded) ---------- */
-const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
-          set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open('pocket-formulary',1);
-  r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
+const SEC_KO={'Prescriber Highlights':'핵심 요약','Uses/Indications':'적응증','Indications/Actions':'적응증·작용','Pharmacology/Actions':'약리 작용','Pharmacology':'약리','Pharmacokinetics':'약동학','Contraindications/Precautions/Warnings':'금기·주의','Precautions/Adverse Effects':'주의·부작용','Adverse Effects':'부작용','Reproductive/Nursing Safety':'임신·수유','Overdose/Acute Toxicity':'과량·독성','Overdosage/Acute Toxicity':'과량·독성','Overdose/Toxicity':'과량·독성','Drug Interactions':'상호작용','Drug Interactions/Laboratory Considerations':'상호작용·검사','Laboratory Considerations':'검사 영향','Laboratory Interactions':'검사 영향','Dosages':'용량','Doses':'용량','Suggested Dosages/Uses':'용량','Suggested Uses/Dosages':'용량','Suggested Dosages/Use':'용량','Monitoring':'모니터링','Client Information':'보호자 안내','Chemistry/Synonyms':'화학·동의어','Chemistry':'화학','Storage/Stability':'보관','Compatibility/Compounding Considerations':'배합·조제','Dosage Forms/Regulatory Status':'제형·허가','Dose Forms/Regulatory Status':'제형·허가','Regulatory Status':'허가','Veterinary-Labeled Products':'동물용 제품','Human-Labeled Products':'인체용 제품','Veterinary- and Human-Labeled Products':'제품'};
+const SEC_COLOR={'용량':'--t1','핵심 요약':'--t5','부작용':'--t2','주의·부작용':'--t2','상호작용':'--t3','상호작용·검사':'--t3','금기·주의':'--t4','제형·허가':'--t6'};
+const PRIORITY=['용량','핵심 요약','부작용','주의·부작용','금기·주의','상호작용','상호작용·검사'];
+const SP_KO={'DOGS':'개','CATS':'고양이','HORSES':'말','CATTLE':'소','SWINE':'돼지','PIGS':'돼지','SHEEP':'양','GOATS':'염소','SHEEP & GOATS':'양·염소','SHEEP, GOATS':'양·염소','CAMELIDS':'낙타과','FERRETS':'페럿','RABBITS':'토끼','RABBITS, RODENTS, SMALL MAMMALS':'토끼·설치류·소형 포유류','SMALL MAMMALS':'소형 포유류','RODENTS':'설치류','BIRDS':'조류','REPTILES':'파충류','AMPHIBIANS':'양서류','FISH':'어류','PRIMATES':'영장류','EXOTICS':'특수동물','BEARS':'곰','URSIDAE':'곰','DOGS AND CATS':'개·고양이','DOGS & CATS':'개·고양이','RUMINANTS':'반추류','POULTRY':'가금류'};
+const GRP_KO={Systemic:'전신',Ophthalmic:'안과',Topical:'피부',Otic:'이과',Appendix:'부록'};
+
+/* storage */
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open('pocket-formulary',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
 async function idbGet(k){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('kv').objectStore('kv').get(k);t.onsuccess=()=>res(t.result);t.onerror=()=>rej(t.error)})}
 async function idbSet(k,v){const db=await idb();return new Promise((res,rej)=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
-async function idbDel(k){const db=await idb();return new Promise((res)=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').delete(k);tx.oncomplete=()=>res();tx.onerror=()=>res()})}
+async function idbDel(k){const db=await idb();return new Promise(res=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').delete(k);tx.oncomplete=()=>res();tx.onerror=()=>res()})}
 
-/* ---------- text utils ---------- */
+/* text */
 const norm=s=>(s||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[®™]/g,'').replace(/[^a-z0-9가-힣]+/g,' ').trim();
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const strip=h=>h.replace(/<[^>]+>/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#x27;/g,"'").replace(/\s+/g,' ');
 function hi(text,terms){let h=esc(text);for(const t of terms){if(t.length<2)continue;h=h.replace(new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>')}return h}
-function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;const m=[];for(let i=0;i<=a.length;i++){m[i]=[i]}for(let j=1;j<=b.length;j++)m[0][j]=j;
-  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return m[a.length][b.length]}
+function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;const m=[];for(let i=0;i<=a.length;i++)m[i]=[i];for(let j=1;j<=b.length;j++)m[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return m[a.length][b.length]}
+const secKo=h=>SEC_KO[h]||(h?h:'개요');
+const grpKey=g=>(g||'').split(' ')[0];
 
-/* ---------- build index ---------- */
-function synonyms(d){
-  const s=d.s.find(x=>/^Chemistry/.test(x[0]));if(!s)return '';
-  const t=strip(s[1]);const m=t.match(/may also be known as ([^]*?)\.(\s|$)/i);return m?m[1]:'';
-}
+/* index */
+function synonyms(d){const s=d.s.find(x=>/^Chemistry/.test(x[0]));if(!s)return '';const m=strip(s[1]).match(/may also be known as ([^]*?)\.(\s|$)/i);return m?m[1]:''}
 function build(data){
   DB=data;FULL=null;byName=new Map();
   IDX=data.drugs.map((d,i)=>{
-    const names=[d.n,...(d.a||[])];
-    const brands=(d.b||'')+' '+synonyms(d);
+    const names=[d.n,...(d.a||[]),...(d.ko?[d.ko]:[])];
     for(const n of names){byName.set(norm(n),i);byName.set(norm(n.replace(/,? ?\(?(Systemic|Oral|Injectable)\)?$/i,'')),i)}
+    const brands=(d.b||'')+' '+synonyms(d);
     return {i,n:norm(names.join(' | ')),first:norm(d.n),b:norm(brands),c:norm(d.c),words:norm(names.join(' ')+' '+brands).split(' ')};
   });
-  $('#countlbl').textContent=data.drugs.length+'개 약물';
+  $('#countlbl').textContent=data.drugs.length+' MONOGRAPHS';
 }
-function ensureFull(){
-  if(FULL)return FULL;
-  FULL=DB.drugs.map(d=>d.s.map(([h,html])=>[h,strip(html)]));
-  return FULL;
-}
+function ensureFull(){if(!FULL)FULL=DB.drugs.map(d=>d.s.map(([h,html])=>[h,strip(html)]));return FULL}
+const inGrp=d=>!grp||d.g.startsWith(grp);
 
-/* ---------- search ---------- */
+/* search */
 function searchName(query){
-  const qn=norm(query);if(!qn)return [];
-  const toks=qn.split(' ');
-  const out=[];
-  for(const x of IDX){
-    const d=DB.drugs[x.i];
-    if(grp && !d.g.startsWith(grp))continue;
-    let sc=0;
-    if(x.first===qn)sc=1000;
-    else if(x.first.startsWith(qn))sc=800-x.first.length;
+  const qn=norm(query);if(!qn)return [];const toks=qn.split(' ');const out=[];
+  for(const x of IDX){const d=DB.drugs[x.i];if(!inGrp(d))continue;let sc=0;
+    if(x.first===qn)sc=1000;else if(x.first.startsWith(qn))sc=800-x.first.length;
     else if(x.n.split(' | ').some(n=>n.startsWith(qn)))sc=600;
-    else if(toks.every(t=>x.n.includes(t)))sc=500;
-    else if(toks.every(t=>x.b.includes(t)))sc=400;
+    else if(toks.every(t=>x.n.includes(t)))sc=500;else if(toks.every(t=>x.b.includes(t)))sc=400;
     else if(toks.every(t=>(x.n+' '+x.b+' '+x.c).includes(t)))sc=200;
-    if(sc)out.push([sc,x.i]);
-  }
-  if(!out.length && qn.length>=4){ // typo tolerance
-    for(const x of IDX){const d=DB.drugs[x.i];if(grp && !d.g.startsWith(grp))continue;
-      let best=9;for(const w of x.words){if(w.length<3)continue;const pre=w.slice(0,qn.length+1);best=Math.min(best,lev(qn,w),lev(qn,pre))}
-      const lim=qn.length>=7?2:1;if(best<=lim)out.push([100-best,x.i])}
-  }
+    if(sc)out.push([sc,x.i])}
+  if(!out.length&&qn.length>=4){for(const x of IDX){const d=DB.drugs[x.i];if(!inGrp(d))continue;let best=9;
+    for(const w of x.words){if(w.length<3)continue;best=Math.min(best,lev(qn,w),lev(qn,w.slice(0,qn.length+1)))}
+    if(best<=(qn.length>=7?2:1))out.push([100-best,x.i])}}
   out.sort((a,b)=>b[0]-a[0]||DB.drugs[a[1]].n.localeCompare(DB.drugs[b[1]].n));
   return out.map(o=>o[1]);
 }
 function searchFull(query){
-  const qn=query.toLowerCase().trim();if(qn.length<2)return [];
-  const terms=qn.split(/\s+/).filter(Boolean);
-  const F=ensureFull();const out=[];
-  F.forEach((secs,i)=>{
-    const d=DB.drugs[i];if(grp && !d.g.startsWith(grp))return;
-    let hit=null,count=0;
-    for(let k=0;k<secs.length;k++){const low=secs[k][1].toLowerCase();
-      if(terms.every(t=>low.includes(t))){count++; if(!hit){const p=low.indexOf(terms[0]);hit={k,p}}}}
-    if(hit){
-      const t=secs[hit.k][1];const a=Math.max(0,hit.p-30);
-      const nameHit=terms.every(t=>d.n.toLowerCase().includes(t))?1:0;
-      out.push({i,sec:secs[hit.k][0]||'개요',snip:(a?'…':'')+t.slice(a,hit.p+140)+'…',score:nameHit*1000+count,terms});
-    }
-  });
-  out.sort((a,b)=>b.score-a.score);
-  return out;
+  const qn=query.toLowerCase().trim();if(qn.length<2)return [];const terms=qn.split(/\s+/).filter(Boolean);const F=ensureFull();const out=[];
+  F.forEach((secs,i)=>{const d=DB.drugs[i];if(!inGrp(d))return;let hit=null,count=0;
+    for(let k=0;k<secs.length;k++){const low=secs[k][1].toLowerCase();if(terms.every(t=>low.includes(t))){count++;if(!hit)hit={k,p:low.indexOf(terms[0])}}}
+    if(hit){const t=secs[hit.k][1];const a=Math.max(0,hit.p-30);const nameHit=terms.every(t=>d.n.toLowerCase().includes(t))?1:0;
+      out.push({i,sec:secs[hit.k][0],snip:(a?'…':'')+t.slice(a,hit.p+140)+'…',score:nameHit*1000+count,terms})}});
+  out.sort((a,b)=>b.score-a.score);return out;
 }
 
-/* ---------- list rendering ---------- */
-function rowHTML(i,extra){
-  const d=DB.drugs[i];
-  const sub=[d.c,d.b].filter(Boolean).join(' · ');
-  const g=d.g.startsWith('Systemic')?'':`<span class="tag">${esc({Ophthalmic:'안과',Topical:'피부',Otic:'이과'}[d.g.split(' ')[0]]||d.g)}</span>`;
-  return `<li><button class="row" data-id="${i}"${extra&&extra.sec?` data-sec="${esc(extra.sec)}" data-term="${esc(extra.terms[0])}"`:''}><div class="main"><div class="nm">${extra&&extra.nmhi?extra.nmhi:esc(d.n)}</div>${sub?`<div class="sub">${esc(sub)}</div>`:''}${extra&&extra.snip?`<div class="snip"><em>${esc(extra.sec)}</em>${hi(extra.snip,extra.terms)}</div>`:''}</div>${g}<span class="pg">p.${d.pg}</span></button></li>`;
+/* list */
+function rowHTML(i,x){
+  const d=DB.drugs[i];const sub=[d.c,d.b].filter(Boolean).join(' · ');const gk=grpKey(d.g);
+  const tag=gk==='Systemic'?'':`<span class="tag">${esc(GRP_KO[gk]||gk)}</span>`;
+  const extra=x&&x.sec!==undefined?` data-sec="${esc(x.sec)}" data-term="${esc(x.terms[0])}"`:'';
+  return `<li><button class="row" data-id="${i}"${extra}><div class="main"><div class="nm">${x&&x.nmhi?x.nmhi:esc(d.n)}</div>${d.ko?`<div class="sub">${esc(d.ko)}${sub?' · '+esc(sub):''}</div>`:sub?`<div class="sub">${esc(sub)}</div>`:''}${x&&x.snip?`<div class="snip"><em>${esc(secKo(x.sec))}</em>${hi(x.snip,x.terms)}</div>`:''}</div>${tag}<span class="pg">${d.pg}</span></button></li>`;
 }
 function renderHome(){
-  const fav=ls.get('fav',[]).filter(i=>DB.drugs[i]);
-  const rec=ls.get('recent',[]).filter(i=>DB.drugs[i]).slice(0,12);
+  const fav=ls.get('fav',[]).filter(i=>DB.drugs[i]);const rec=ls.get('recent',[]).filter(i=>DB.drugs[i]).slice(0,6);
   let h='';
-  if(fav.length)h+=`<div class="label">즐겨찾기</div><ul class="list">${fav.map(i=>rowHTML(i)).join('')}</ul>`;
+  if(fav.length)h+=`<div class="label">즐겨찾기</div><div class="favs">${fav.map(i=>`<button class="favb" data-id="${i}">${esc(DB.drugs[i].n)}</button>`).join('')}</div>`;
   if(rec.length)h+=`<div class="label">최근 본 약물</div><ul class="list">${rec.map(i=>rowHTML(i)).join('')}</ul>`;
-  if(!fav.length&&!rec.length)h+=`<div class="empty">약물 이름 앞 글자만 입력해도 바로 찾습니다.<br>오타가 있어도 비슷한 이름을 찾아줘요.</div>`;
-  const letters=[...new Set(DB.drugs.filter(d=>d.g==='Systemic').map(d=>d.n[0].toUpperCase()))].filter(c=>/[A-Z]/.test(c));
-  h+=`<div class="label">가나다 대신 ABC로 둘러보기</div><div class="alpha">${letters.map(c=>`<button data-letter="${c}">${c}</button>`).join('')}</div>`;
-  h+=`<div class="settings"><button class="btn ghost" id="reimport">데이터 파일 다시 불러오기</button><button class="btn ghost" id="wipe" style="border-color:var(--warn);color:var(--warn)">이 기기에서 데이터 삭제</button><div id="confirmbox"></div></div>`;
-  h+=`<p class="foot">${esc(DB.title)} · 이 기기의 브라우저에만 저장됨. 실제 처방 전에는 원문과 최신 라벨을 확인하세요.</p>`;
-  main.innerHTML=h;
-}
-function renderLetter(c){
-  const ids=DB.drugs.map((d,i)=>i).filter(i=>DB.drugs[i].n[0].toUpperCase()===c&&(!grp||DB.drugs[i].g.startsWith(grp)));
-  main.innerHTML=`<div class="label">${c} · ${ids.length}개</div><ul class="list">${ids.map(i=>rowHTML(i)).join('')}</ul>`;
+  const ids=DB.drugs.map((d,i)=>i).filter(i=>inGrp(DB.drugs[i])&&!/총론/.test(DB.drugs[i].g)).sort((a,b)=>DB.drugs[a].n.localeCompare(DB.drugs[b].n));
+  const letters=[];let cur='';const parts=[];
+  for(const i of ids){const L=(DB.drugs[i].n[0]||'#').toUpperCase();const key=/[A-Z]/.test(L)?L:'#';
+    if(key!==cur){if(cur)parts.push('</ul>');cur=key;letters.push(key);parts.push(`<div class="letter" id="L-${key}">${key}</div><ul class="list">`)}
+    parts.push(rowHTML(i))}
+  if(cur)parts.push('</ul>');
+  h+=`<div class="label">전체 약물 ${ids.length}</div>`+parts.join('');
+  h+=`<div class="settings"><button class="btn ghost" id="reimport">데이터 파일 다시 불러오기</button><button class="btn ghost danger" id="wipe">이 기기에서 데이터 삭제</button><div id="confirmbox"></div></div>`;
+  h+=`<p class="foot">${esc(DB.title)} · 이 기기에만 저장됨. 처방 전 원문과 최신 라벨을 확인하세요.</p>`;
+  main.innerHTML=h;main.classList.add('withrail');
+  rail.innerHTML=letters.map(L=>`<button data-l="${L}" aria-label="${L}로 이동">${L}</button>`).join('');rail.hidden=false;
 }
 function renderResults(){
-  const v=q.value.trim();
-  $('#clr').hidden=!v;
-  if(!DB)return;
+  const v=q.value.trim();$('#clr').hidden=!v;if(!DB)return;
   if(!v){renderHome();return}
+  rail.hidden=true;main.classList.remove('withrail');
   if(mode==='name'){
     const r=searchName(v);
-    if(!r.length){main.innerHTML=`<div class="empty">“${esc(v)}”와 일치하는 약물명이 없습니다.<br><button class="more" id="tofull">본문 전체에서 찾기</button></div>`;return}
+    if(!r.length){main.innerHTML=`<div class="empty">“${esc(v)}”와 일치하는 약물명이 없어요.<br><button class="more" id="tofull">본문에서 찾기</button></div>`;return}
     const terms=norm(v).split(' ');
-    main.innerHTML=`<div class="label">${r.length}개 결과</div><ul class="list">${r.slice(0,showN).map(i=>rowHTML(i,{nmhi:hi(DB.drugs[i].n,terms)})).join('')}</ul>${r.length>showN?'<button class="more" id="more">더 보기</button>':''}`;
+    main.innerHTML=`<div class="label">검색 결과 ${r.length}</div><ul class="list">${r.slice(0,showN).map(i=>rowHTML(i,{nmhi:hi(DB.drugs[i].n,terms)})).join('')}</ul>${r.length>showN?'<button class="more" id="more">더 보기</button>':''}`;
   }else{
     if(v.length<2){main.innerHTML='<div class="empty">두 글자 이상 입력하세요.</div>';return}
     const r=searchFull(v);
-    if(!r.length){main.innerHTML=`<div class="empty">본문에서 “${esc(v)}”를 찾지 못했습니다.</div>`;return}
-    main.innerHTML=`<div class="label">${r.length}개 약물에서 발견 · 여러 단어는 모두 포함된 섹션만</div><ul class="list">${r.slice(0,showN).map(x=>rowHTML(x.i,x)).join('')}</ul>${r.length>showN?'<button class="more" id="more">더 보기</button>':''}`;
+    if(!r.length){main.innerHTML=`<div class="empty">본문에서 “${esc(v)}”를 찾지 못했어요.</div>`;return}
+    main.innerHTML=`<div class="label">${r.length}개 약물에서 발견 · 여러 단어는 모두 들어간 섹션만</div><ul class="list">${r.slice(0,showN).map(x=>rowHTML(x.i,x)).join('')}</ul>${r.length>showN?'<button class="more" id="more">더 보기</button>':''}`;
   }
 }
 
-/* ---------- monograph ---------- */
+/* monograph */
 const stack=[];
 const DOSE_RE=/(\d+(?:\.\d+)?)(\s*(?:–|-|to)\s*(\d+(?:\.\d+)?))?\s*(mg|mcg|µg|μg|g|mL|units?|U|IU|mEq|mmol|ng)\s*\/\s*kg(\s*\/\s*(?:hr|hour|h|min|minute|day))?/g;
-function fmt(n){if(n>=100)return Math.round(n).toString();if(n>=10)return (Math.round(n*10)/10).toString();if(n>=1)return (Math.round(n*100)/100).toString();return (+n.toPrecision(2)).toString()}
+function fmt(n){if(n>=100)return String(Math.round(n));if(n>=10)return String(Math.round(n*10)/10);if(n>=1)return String(Math.round(n*100)/100);return String(+n.toPrecision(2))}
 function annotateDoses(root,kg){
-  root.querySelectorAll('.dz').forEach(e=>e.remove());
-  if(!(kg>0))return;
-  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const nodes=[];
-  while(walker.nextNode()){if(/\/\s*kg/.test(walker.currentNode.nodeValue))nodes.push(walker.currentNode)}
-  for(const n of nodes){
-    const txt=n.nodeValue;let last=0;const frag=document.createDocumentFragment();let m;DOSE_RE.lastIndex=0;let any=false;
-    while((m=DOSE_RE.exec(txt))){any=true;
-      frag.appendChild(document.createTextNode(txt.slice(last,m.index+m[0].length)));
-      const a=parseFloat(m[1])*kg,b=m[3]?parseFloat(m[3])*kg:null;
-      const unit=m[4]+(m[5]?m[5].replace(/\s/g,''):'');
-      const s=document.createElement('span');s.className='dz';s.textContent='= '+fmt(a)+(b!=null?'–'+fmt(b):'')+' '+unit;
-      frag.appendChild(s);last=m.index+m[0].length}
-    if(any){frag.appendChild(document.createTextNode(txt.slice(last)));n.parentNode.replaceChild(frag,n)}
-  }
+  root.querySelectorAll('.dz').forEach(e=>e.remove());if(!(kg>0))return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const nodes=[];while(w.nextNode()){if(/\/\s*kg/.test(w.currentNode.nodeValue))nodes.push(w.currentNode)}
+  for(const n of nodes){const txt=n.nodeValue;let last=0,m,any=false;const frag=document.createDocumentFragment();DOSE_RE.lastIndex=0;
+    while((m=DOSE_RE.exec(txt))){any=true;frag.appendChild(document.createTextNode(txt.slice(last,m.index+m[0].length)));
+      const a=parseFloat(m[1])*kg,b=m[3]?parseFloat(m[3])*kg:null;const s=document.createElement('span');s.className='dz';
+      s.textContent='= '+fmt(a)+(b!=null?'–'+fmt(b):'')+' '+m[4]+(m[5]?m[5].replace(/\s/g,''):'');frag.appendChild(s);last=m.index+m[0].length}
+    if(any){frag.appendChild(document.createTextNode(txt.slice(last)));n.parentNode.replaceChild(frag,n)}}
 }
-function linkify(body,selfId){
-  body.querySelectorAll('b').forEach(b=>{
-    const t=b.textContent.replace(/[:\s]+$/,'');const id=byName.get(norm(t));
-    if(id!=null&&id!==selfId){const a=document.createElement('a');a.className='xref';a.dataset.id=id;a.textContent=b.textContent;b.replaceWith(a)}
-  });
-}
+function linkify(body,selfId){body.querySelectorAll('b').forEach(b=>{const t=b.textContent.replace(/[:\s]+$/,'');const id=byName.get(norm(t));
+  if(id!=null&&id!==selfId){const a=document.createElement('a');a.className='xref';a.dataset.id=id;a.textContent=b.textContent;b.replaceWith(a)}})}
+function spLabel(t){return SP_KO[t]||SP_KO[t.replace(/\s+/g,' ')]||(t.charAt(0)+t.slice(1).toLowerCase())}
 function speciesGroups(body){
   const hs=[...body.querySelectorAll(':scope > h4')];
   const sp=hs.map(h=>h.textContent.replace(/[:\s]+$/,'').trim()).filter(t=>/^[A-Z][A-Z ,/&()\-]+$/.test(t)&&t.length<40);
+  hs.forEach(h=>{const t=h.textContent.replace(/[:\s]+$/,'').trim();if(SP_KO[t])h.innerHTML=`${esc(t)} · ${esc(SP_KO[t])}`});
   if(sp.length<2)return;
-  // wrap blocks under each h4
-  const kids=[...body.children];let cur=null;
-  for(const k of kids){
-    if(k.tagName==='H4'){const t=k.textContent.replace(/[:\s]+$/,'').trim();cur=document.createElement('div');cur.dataset.sp=t;k.before(cur);cur.appendChild(k)}
-    else if(cur)cur.appendChild(k);
-  }
+  let cur=null;for(const k of [...body.children]){if(k.tagName==='H4'){cur=document.createElement('div');cur.dataset.sp=k.textContent.split(' · ')[0].replace(/[:\s]+$/,'').trim();k.before(cur);cur.appendChild(k)}else if(cur)cur.appendChild(k)}
   const bar=document.createElement('div');bar.className='spchips';
-  bar.innerHTML=`<button class="chip" aria-pressed="true" data-sp="">모든 동물</button>`+[...new Set(sp)].map(s=>`<button class="chip" aria-pressed="false" data-sp="${esc(s)}">${esc(s.charAt(0)+s.slice(1).toLowerCase())}</button>`).join('');
+  bar.innerHTML=`<button aria-pressed="true" data-sp="">모든 동물</button>`+[...new Set(sp)].map(s=>`<button aria-pressed="false" data-sp="${esc(s)}">${esc(spLabel(s))}</button>`).join('');
   body.prepend(bar);
-  bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-    bar.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));
-    body.querySelectorAll('div[data-sp]').forEach(dv=>dv.hidden=b.dataset.sp&&dv.dataset.sp!==b.dataset.sp);
-    try{ls.set('lastSp',b.dataset.sp)}catch(e){}
-  });
-  const pref=ls.get('lastSp','');
-  if(pref&&sp.includes(pref))bar.querySelector(`button[data-sp="${CSS.escape(pref)}"]`)?.click();
+  bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;bar.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    body.querySelectorAll('div[data-sp]').forEach(dv=>dv.hidden=!!b.dataset.sp&&dv.dataset.sp!==b.dataset.sp);ls.set('lastSp',b.dataset.sp)});
+  const pref=ls.get('lastSp','');if(pref&&sp.includes(pref))bar.querySelector(`button[data-sp="${CSS.escape(pref)}"]`)?.click();
 }
-const SHORT={'Prescriber Highlights':'핵심','Uses/Indications':'적응증','Pharmacology/Actions':'약리','Pharmacokinetics':'PK','Contraindications/Precautions/Warnings':'금기·주의','Adverse Effects':'부작용','Reproductive/Nursing Safety':'임신·수유','Overdose/Acute Toxicity':'과량','Drug Interactions':'상호작용','Laboratory Considerations':'검사영향','Dosages':'용량','Monitoring':'모니터링','Client Information':'보호자 안내','Chemistry/Synonyms':'동의어','Storage/Stability':'보관','Compatibility/Compounding Considerations':'배합·조제','Dosage Forms/Regulatory Status':'제형','Indications/Actions':'적응증','Precautions/Adverse Effects':'주의·부작용','Suggested Dosages/Uses':'용량','Veterinary-Labeled Products':'동물용 제품','Human-Labeled Products':'인체용 제품'};
+function orderedSecs(d){
+  const list=d.s.map(([h,html],k)=>({h,html,k,ko:secKo(h)}));
+  return list.sort((a,b)=>{const pa=PRIORITY.indexOf(a.ko),pb=PRIORITY.indexOf(b.ko);return (pa<0?99:pa)-(pb<0?99:pb)||a.k-b.k});
+}
 function openDrug(i,opts={}){
-  const d=DB.drugs[i];if(!d)return;
-  if(!opts.noPush){stack.push(i)}
+  const d=DB.drugs[i];if(!d)return;if(!opts.noPush)stack.push(i);
   const rec=ls.get('recent',[]).filter(x=>x!==i);rec.unshift(i);ls.set('recent',rec.slice(0,30));
-  const fav=ls.get('fav',[]);$('#star').setAttribute('aria-pressed',fav.includes(i));
-  $('#sttl').textContent=d.n;$('#sttl').classList.remove('on');
-  const kg=ls.get('kg','');
-  let h=`<header class="mono-h"><h2>${esc(d.n)}</h2>${(d.a||[]).length?`<div class="alt">${esc(d.a.join(', '))}</div>`:''}
-    <div class="meta">${d.p?`<span>${esc(d.p)}</span>`:''}${d.b?`<span class="brands">${esc(d.b)}</span>`:''}<span class="pg">원서 p.${d.pg}</span></div>
-    ${d.c?`<div class="cls">${esc(d.c)}</div>`:''}</header>
-    <div class="calc"><label for="kg">체중</label><input id="kg" type="number" inputmode="decimal" step="0.1" min="0" placeholder="kg" value="${esc(String(kg))}"><span style="font-size:13px;color:var(--dose)">kg</span><span class="hint">입력하면 본문의 mg/kg 용량 옆에 총량이 표시됩니다. 계산은 참고용이에요.</span></div>`;
-  d.s.forEach(([title,html],k)=>{
-    const key=KEY_SECS.includes(title)||(!title&&k===0)||opts.sec===title;
-    h+=`<details class="sec${KEY_SECS.includes(title)?' key':''}" id="s${k}" data-h="${esc(title)}"${key?' open':''}><summary>${esc(title||'개요')}</summary><div class="body">${html}</div></details>`;
-  });
-  h+=`<p class="foot">${esc(DB.title)} · p.${d.pg}. 참고문헌은 원서를 확인하세요.</p>`;
+  $('#star').setAttribute('aria-pressed',ls.get('fav',[]).includes(i));
+  $('#pgb').textContent='p.'+d.pg;$('#backlbl').textContent=stack.length>1?'이전':(q.value.trim()?'검색':'색인');
+  $('#monoh').innerHTML=`<h2>${esc(d.n)}</h2>${d.ko||(d.a||[]).length?`<div class="alt">${esc([d.ko,...(d.a||[])].filter(Boolean).join(' · '))}</div>`:''}<div class="meta">${esc([d.b,d.p].filter(Boolean).join('  ·  '))}</div>${d.c?`<div class="cls">${esc(d.c)}</div>`:''}`;
+  const secs=orderedSecs(d);const kg=ls.get('kg','');
+  let h=`<div class="calc"><label for="kg">체중</label><input id="kg" type="number" inputmode="decimal" step="0.1" min="0" placeholder="kg" value="${esc(String(kg))}"><span style="color:var(--muted)">kg</span><span class="hint">입력하면 mg/kg 용량 옆에 총량이 표시돼요. 참고용 계산이에요.</span></div>`;
+  secs.forEach((s,n)=>{const color=SEC_COLOR[s.ko]||'--t6';const open=n<2||opts.sec===s.h;
+    h+=`<section class="sec${open?'':' closed'}" id="s${n}" data-h="${esc(s.h)}"><button class="sechd" aria-expanded="${open}"><span class="ttl"><span class="ko" style="background:var(${color})">${esc(s.ko)}</span>${s.h&&s.ko!==s.h?`<span class="en">${esc(s.h)}</span>`:''}</span><span class="tg">${open?'－':'＋'}</span></button><div class="body">${s.html}</div></section>`});
+  h+=`<p class="foot">${esc(DB.title)} · p.${d.pg} · 참고문헌은 원서를 확인하세요.</p>`;
   mono.innerHTML=h;
-  $('#secnav').innerHTML=d.s.map(([t],k)=>`<button data-k="${k}">${esc(SHORT[t]||t||'개요')}</button>`).join('');
-  mono.querySelectorAll('.sec').forEach(sec=>{
-    const body=sec.querySelector('.body');const t=sec.dataset.h;
+  $('#tabrow').innerHTML=secs.map((s,n)=>`<button role="tab" data-k="${n}" style="background:var(${SEC_COLOR[s.ko]||'--t6'})">${esc(s.ko)}</button>`).join('');
+  mono.querySelectorAll('.sec').forEach(sec=>{const body=sec.querySelector('.body');const t=sec.dataset.h;
     if(/Interactions|Contraindications|Overdose|Adverse/.test(t))linkify(body,i);
-    if(/Dosage|Doses/.test(t)&&!/Forms|Regulatory/.test(t))speciesGroups(body);
-  });
+    if(/Dosage|Doses/.test(t)&&!/Forms|Regulatory/.test(t))speciesGroups(body)});
   annotateDoses(mono,parseFloat(kg));
-  sheet.hidden=false;document.body.style.overflow='hidden';
-  sheet.scrollTop=0;
-  if(opts.sec){const sec=[...mono.querySelectorAll('.sec')].find(s=>s.dataset.h===opts.sec);
-    if(sec){sec.open=true;
-      if(opts.term){const w=document.createTreeWalker(sec.querySelector('.body'),NodeFilter.SHOW_TEXT);let n;const t=opts.term.toLowerCase();
-        while((n=w.nextNode())){const p=n.nodeValue.toLowerCase().indexOf(t);if(p>=0){const r=document.createRange();r.setStart(n,p);r.setEnd(n,p+t.length);const mk=document.createElement('mark');r.surroundContents(mk);
-          setTimeout(()=>mk.scrollIntoView({block:'center'}),30);break}}}
-      else setTimeout(()=>scrollToSec(sec),30)}}
+  sheet.hidden=false;document.body.style.overflow='hidden';sheet.scrollTop=0;
+  if(opts.sec!==undefined){const sec=[...mono.querySelectorAll('.sec')].find(s=>s.dataset.h===opts.sec);
+    if(sec){openSec(sec,true);if(opts.term){const w=document.createTreeWalker(sec.querySelector('.body'),NodeFilter.SHOW_TEXT);let n;const t=opts.term.toLowerCase();
+      while((n=w.nextNode())){const p=n.nodeValue.toLowerCase().indexOf(t);if(p>=0){const r=document.createRange();r.setStart(n,p);r.setEnd(n,p+t.length);const mk=document.createElement('mark');r.surroundContents(mk);setTimeout(()=>mk.scrollIntoView({block:'center'}),30);break}}}
+      else setTimeout(()=>sec.scrollIntoView({block:'start'}),30)}}
 }
-function scrollToSec(sec){const off=$('.sheethead').offsetHeight+4;sheet.scrollTo({top:sec.offsetTop-off,behavior:'auto'});const sm=sec.querySelector('summary');sm.classList.remove('flash');void sm.offsetWidth;sm.classList.add('flash')}
+function openSec(sec,open){sec.classList.toggle('closed',!open);const b=sec.querySelector('.sechd');b.setAttribute('aria-expanded',open);b.querySelector('.tg').textContent=open?'－':'＋'}
 function closeSheet(){sheet.hidden=true;document.body.style.overflow='';renderResults()}
 
-/* ---------- events ---------- */
+/* events */
 let tmr;q.addEventListener('input',()=>{showN=40;clearTimeout(tmr);tmr=setTimeout(renderResults,mode==='full'?220:40)});
 $('#clr').addEventListener('click',()=>{q.value='';renderResults();q.focus()});
-$('#modes').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;
-  if(b.dataset.mode){mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',x===b));
-    q.placeholder=mode==='full'?'본문 검색 (예: MDR1, pyometra, CKD cat)':'약물명, 상품명, 분류 검색 (예: maropitant, Cerenia)';}
-  else{grp=b.dataset.grp;document.querySelectorAll('[data-grp]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
+$('#ctrls').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.mode){mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',x===b));q.placeholder=mode==='full'?'본문 검색 (예: MDR1, pyometra)':'약물명·상품명 (예: maropitant, Cerenia)'}
+  else if(b.dataset.grp!==undefined){grp=b.dataset.grp;document.querySelectorAll('[data-grp]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
   showN=40;renderResults()});
 main.addEventListener('click',e=>{
-  const r=e.target.closest('.row');if(r){openDrug(+r.dataset.id,{sec:r.dataset.sec,term:r.dataset.term});return}
-  const l=e.target.closest('[data-letter]');if(l){renderLetter(l.dataset.letter);return}
-  if(e.target.id==='more'){showN+=60;renderResults();return}
-  if(e.target.id==='tofull'){document.querySelector('[data-mode="full"]').click();return}
-  if(e.target.id==='reimport'||e.target.id==='pick'){$('#file').click();return}
-  if(e.target.id==='wipe'){$('#confirmbox').innerHTML=`<div class="confirm">이 기기에 저장된 약전 데이터를 지웁니다. 다시 쓰려면 파일을 다시 불러와야 해요.<div class="acts"><button id="nope">취소</button><button class="danger" id="yes">삭제</button></div></div>`;return}
-  if(e.target.id==='nope'){$('#confirmbox').innerHTML='';return}
-  if(e.target.id==='yes'){idbDel('data').then(()=>{DB=null;renderSetup()});return}
+  const r=e.target.closest('.row,.favb');if(r){openDrug(+r.dataset.id,{sec:r.dataset.sec,term:r.dataset.term});return}
+  const id=e.target.id;
+  if(id==='more'){showN+=60;renderResults()}
+  else if(id==='tofull')document.querySelector('[data-mode="full"]').click();
+  else if(id==='reimport'||id==='pick')$('#file').click();
+  else if(id==='wipe')$('#confirmbox').innerHTML=`<div class="confirm">이 기기에 저장된 약전 데이터를 지웁니다. 다시 쓰려면 파일을 다시 불러와야 해요.<div class="acts"><button id="nope">취소</button><button class="danger" id="yes">삭제</button></div></div>`;
+  else if(id==='nope')$('#confirmbox').innerHTML='';
+  else if(id==='yes')idbDel('data').then(()=>{DB=null;rail.hidden=true;renderSetup()});
 });
-$('#back').addEventListener('click',()=>{stack.pop();if(stack.length){openDrug(stack[stack.length-1],{noPush:true})}else closeSheet()});
-$('#star').addEventListener('click',()=>{const i=stack[stack.length-1];let fav=ls.get('fav',[]);
-  if(fav.includes(i))fav=fav.filter(x=>x!==i);else fav.unshift(i);ls.set('fav',fav);$('#star').setAttribute('aria-pressed',fav.includes(i))});
-$('#secnav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const sec=$('#s'+b.dataset.k);sec.open=true;scrollToSec(sec)});
-mono.addEventListener('click',e=>{const a=e.target.closest('a.xref');if(a){e.preventDefault();openDrug(+a.dataset.id)}});
-mono.addEventListener('input',e=>{if(e.target.id==='kg'){const v=parseFloat(e.target.value);ls.set('kg',e.target.value);annotateDoses(mono,v)}});
-sheet.addEventListener('scroll',()=>{$('#sttl').classList.toggle('on',sheet.scrollTop>70)},{passive:true});
+rail.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=document.getElementById('L-'+b.dataset.l);if(t){t.scrollIntoView({block:'start'});rail.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))}});
+$('#back').addEventListener('click',()=>{stack.pop();if(stack.length)openDrug(stack[stack.length-1],{noPush:true});else closeSheet()});
+$('#star').addEventListener('click',()=>{const i=stack[stack.length-1];let fav=ls.get('fav',[]);fav=fav.includes(i)?fav.filter(x=>x!==i):[i,...fav];ls.set('fav',fav);$('#star').setAttribute('aria-pressed',fav.includes(i))});
+$('#tabrow').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const sec=$('#s'+b.dataset.k);openSec(sec,true);sec.scrollIntoView({block:'start'})});
+mono.addEventListener('click',e=>{const a=e.target.closest('a.xref');if(a){e.preventDefault();openDrug(+a.dataset.id);return}
+  const h=e.target.closest('.sechd');if(h){const sec=h.parentElement;openSec(sec,sec.classList.contains('closed'))}});
+mono.addEventListener('input',e=>{if(e.target.id==='kg'){ls.set('kg',e.target.value);annotateDoses(mono,parseFloat(e.target.value))}});
+let ticking=false;sheet.addEventListener('scroll',()=>{if(ticking)return;ticking=true;requestAnimationFrame(()=>{ticking=false;
+  const secs=[...mono.querySelectorAll('.sec')];let cur=0;const top=$('.tabs').getBoundingClientRect().bottom+8;
+  secs.forEach((s,n)=>{if(s.getBoundingClientRect().top<=top)cur=n});
+  document.querySelectorAll('#tabrow button').forEach((b,n)=>{const on=n===cur;if(on!==b.classList.contains('cur')){b.classList.toggle('cur',on);if(on)b.scrollIntoView({inline:'nearest',block:'nearest'})}})})},{passive:true});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.hidden)$('#back').click()});
 
-/* ---------- setup / import ---------- */
+/* setup */
 function renderSetup(msg,err){
-  $('#countlbl').textContent='';
-  main.innerHTML=`<section class="setup">
-    <h2>약전 데이터 파일을 한 번만 불러오면 준비 끝</h2>
-    <p>이 앱에는 책 내용이 들어 있지 않습니다. 대화에서 받은 <b>plumbs-formulary-data.json</b> 파일을 불러오면 이 기기 브라우저 안에만 저장되고, 이후엔 바로 검색됩니다.</p>
-    <ol class="steps"><li>아이폰에서 대화의 JSON 파일을 눌러 <b>‘파일’ 앱에 저장</b> (이미 저장했다면 그대로 사용)</li><li>아래 버튼 → 저장한 파일 선택</li><li>약 10MB, 몇 초면 끝나요</li></ol>
-    <button class="btn" id="pick">데이터 파일 불러오기</button>
-    <div class="status${err?' err':''}" id="status">${esc(msg||'')}</div>
-    <div class="preview"><div class="label">불러오면 이렇게 쓸 수 있어요</div>
-      <ul class="steps" style="margin:0"><li><b>maro</b> → Maropitant, <b>cerenia</b> → 상품명으로도 검색</li><li><b>본문 전체</b> 모드: “MDR1”, “pyometra”처럼 적응증·키워드로 검색</li><li>용량 섹션에서 개·고양이 등 동물별로 바로 필터, 체중 넣으면 총 mg 자동 표시</li><li>상호작용에 나온 약 이름을 누르면 해당 약으로 이동, 즐겨찾기·최근 기록</li></ul></div>
-  </section>`;
+  $('#countlbl').textContent='';rail.hidden=true;main.classList.remove('withrail');
+  main.innerHTML=`<section class="setup"><h2>약전 데이터 파일을 한 번만 불러오면 준비 끝</h2>
+    <p>앱에는 책 내용이 들어 있지 않아요. <b>plumbs-formulary-data.json</b> 파일을 불러오면 이 기기 안에만 저장되고, 이후엔 인터넷 없이 검색돼요.</p>
+    <ol class="steps"><li>대화에서 받은 JSON 파일을 <b>‘파일’ 앱에 저장</b></li><li>아래 버튼 → 저장한 파일 선택</li><li>약 10MB, 몇 초면 끝나요</li></ol>
+    <button class="btn" id="pick">데이터 파일 불러오기</button><div class="status${err?' err':''}" id="status">${esc(msg||'')}</div></section>`;
 }
 $('#file').addEventListener('change',async e=>{
-  const f=e.target.files[0];e.target.value='';if(!f)return;
-  const st=()=>$('#status');
-  if(!st())renderSetup();
-  st().className='status';st().textContent='읽는 중…';
-  try{
-    const txt=await f.text();
-    const data=JSON.parse(txt);
-    if(!data||data.format!=='vet-formulary/1'||!Array.isArray(data.drugs))throw new Error('format');
-    build(data);
-    try{await idbSet('data',data);try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}}catch(err){st().textContent='저장 공간에 저장하지 못해 이번 세션에서만 사용됩니다.'}
+  const f=e.target.files[0];e.target.value='';if(!f)return;if(!$('#status'))renderSetup();const st=$('#status');st.className='status';st.textContent='읽는 중…';
+  try{const data=JSON.parse(await f.text());if(!data||data.format!=='vet-formulary/1'||!Array.isArray(data.drugs))throw new Error('format');
+    build(data);try{await idbSet('data',data);try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}}catch(err){}
     q.value='';renderResults();
-  }catch(err){
-    renderSetup(err.message==='format'?'이 파일은 약전 데이터 형식이 아닙니다. plumbs-formulary-data.json 파일을 선택하세요.':'파일을 읽지 못했습니다. 파일이 끝까지 다운로드됐는지 확인하고 다시 시도하세요.',true);
-  }
+  }catch(err){renderSetup(err.message==='format'?'약전 데이터 형식이 아닌 파일이에요. plumbs-formulary-data.json을 선택하세요.':'파일을 읽지 못했어요. 다운로드가 끝났는지 확인하고 다시 시도하세요.',true)}
 });
-
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
-(async function init(){
-  try{const data=await idbGet('data');if(data&&data.drugs){build(data);renderResults();return}}catch(e){}
-  renderSetup();
-})();
+(async function init(){try{const data=await idbGet('data');if(data&&data.drugs){build(data);renderResults();return}}catch(e){}renderSetup()})();
 })();
 </script>
-
 </body>
 </html>
